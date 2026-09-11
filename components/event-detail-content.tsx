@@ -99,6 +99,9 @@ export async function EventDetailsContent({
           </p>
           {event.description && <p>{event.description}</p>}
         </div>
+        <Button asChild variant="default" size="sm">
+          <Link href={`/events/${event.id}/edit`}>Edit</Link>
+        </Button>
         <Button asChild variant="outline">
           <Link href={"/dashboard"}>Back</Link>
         </Button>

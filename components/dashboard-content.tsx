@@ -90,11 +90,8 @@ export async function DashboardContent({ userId }: { userId: string }) {
                     <Button asChild variant="link" size="sm">
                       <Link href={`/events/${event.id}`}>View</Link>
                     </Button>
-                    <Button variant="default" size="sm">
-                      <Link href={`/events/${event.id}`}>Edit</Link>
-                    </Button>
-                    <Button variant="destructive" size="sm">
-                      <Link href={`/events/${event.id}`}>Delete</Link>
+                    <Button asChild variant="default" size="sm">
+                      <Link href={`/events/${event.id}/edit`}>Edit</Link>
                     </Button>
                   </div>
                 </div>
