@@ -26,7 +26,8 @@ model Event {
   location    String?
   eventDate   DateTime? @map("event_date") @db.Timestamptz(6)
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  
 
   invite EventInvite?
   rsvps EventRsvp[]

@@ -6,7 +6,10 @@ import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { count } from "console";
 
-export function countByStatus(rsvps: { status: PrismaRsvpStatus }[], status: string) {
+export function countByStatus(
+  rsvps: { status: PrismaRsvpStatus }[],
+  status: string,
+) {
   let goingCount = 0;
   let maybeCount = 0;
   let notGoingCount = 0;
@@ -46,7 +49,7 @@ export async function DashboardContent({ userId }: { userId: string }) {
     title: e.title,
     eventDate: e.eventDate ? e.eventDate.toISOString() : null,
     location: e.location,
-    ...countByStatus(e.rsvps, 'status'),
+    ...countByStatus(e.rsvps, "status"),
   }));
 
   return (
@@ -83,14 +86,24 @@ export async function DashboardContent({ userId }: { userId: string }) {
               <CardHeader className="space-y-3">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-lg">{event.title}</CardTitle>
-                  <Button asChild variant="link" size="sm">
-                    <Link href={`/events/${event.id}`}>View</Link>
-                  </Button>
+                  <div className="flex justify-between gap-2">
+                    <Button asChild variant="link" size="sm">
+                      <Link href={`/events/${event.id}`}>View</Link>
+                    </Button>
+                    <Button variant="default" size="sm">
+                      <Link href={`/events/${event.id}`}>Edit</Link>
+                    </Button>
+                    <Button variant="destructive" size="sm">
+                      <Link href={`/events/${event.id}`}>Delete</Link>
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-2 text-xs">
                   <Badge>Going: {event.goingCount}</Badge>
                   <Badge variant="secondary">Maybe: {event.maybeCount}</Badge>
-                  <Badge variant="outline">{""} Not Going: {event.notGoingCount}</Badge>
+                  <Badge variant="outline">
+                    {""} Not Going: {event.notGoingCount}
+                  </Badge>
                 </div>
                 <p>
                   {event.eventDate

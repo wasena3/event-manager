@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth/server";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic"; 
+
 export default async function HomePage() {
 const { data: session } = await auth.getSession();
   return (
@@ -18,7 +20,7 @@ const { data: session } = await auth.getSession();
           {session ? (
             <>
               <Link
-                href="/events/create"
+                href="/events/new"
                 className="btn-primary text-lg px-8 py-3"
               >
                 Create Event
