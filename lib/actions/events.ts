@@ -183,3 +183,24 @@ export async function updateEventAction(eventId: string, formData: FormData) {
   revalidatePath(`/events/${eventId}`);
   redirect(`/events/${eventId}`);
 }
+export async function deleteEventAction(eventId: string) {
+  const session = await getSession();
+  const userId = session?.data?.user?.id;
+
+  const owns = await prisma.event.findFirst({
+    where: {
+      id: eventId,
+      ownerUserId: userId,
+    },
+    select: { id: true },
+  });
+  if (!owns) {
+    throw new Error("Event not found");
+  }
+
+  await prisma.event.delete({
+    where: { id: eventId },
+  });
+
+  redirect("/dashboard");
+}
