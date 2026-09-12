@@ -4,6 +4,7 @@ import "./globals.css";
 import Link from "next/link";
 import { NeonAuthUIProvider, UserButton } from '@neondatabase/auth-ui';
 import { authClient } from "@/lib/auth/client";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
+        <Toaster />
         <NeonAuthUIProvider authClient={authClient} credentials={{forgotPassword: true}} defaultTheme='dark'>
         <header className="border-b border-b-[var(--surface)]/90 backdrop-blur">
           <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">

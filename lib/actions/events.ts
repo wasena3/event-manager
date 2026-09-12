@@ -202,5 +202,5 @@ export async function deleteEventAction(eventId: string) {
     where: { id: eventId },
   });
 
-  redirect("/dashboard");
+  redirect("/dashboard?deleted=1");
 }

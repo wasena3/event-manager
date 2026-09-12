@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
+import { DeleteEventButton } from "./delete-event-button";
 
 export async function EventDetailsContent({
   userId,
@@ -102,11 +103,13 @@ export async function EventDetailsContent({
         <Button asChild variant="default" size="sm">
           <Link href={`/events/${event.id}/edit`}>Edit</Link>
         </Button>
+        <Button asChild variant="destructive" size="sm">
+          <DeleteEventButton eventId={event.id} />
+        </Button>
         <Button asChild variant="outline">
           <Link href={"/dashboard"}>Back</Link>
         </Button>
       </div>
-
       <div className="flex flex-wrap gap-2 text-">
         <Badge>Going: {event.goingCount}</Badge>
         <Badge variant="secondary">Maybe: {event.maybeCount}</Badge>
