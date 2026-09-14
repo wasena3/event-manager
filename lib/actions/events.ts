@@ -43,6 +43,19 @@ function parseRsvp(formData: FormData) {
   }
   return { name, email, status };
 }
+
+function parseGuestInput(formData: FormData) {
+    const name = String(formData.get("name") ?? "").trim();
+    if (name.length < 3 || name.length > 120) {
+        throw new Error("Name must be between 3 and 120 characters");
+    }
+    const email = String(formData.get("email") ?? "").trim();
+    if (email.length < 3 || email.length > 320 || !email.includes("@")) {
+        throw new Error('Please enter a valid email');
+    }
+    return { name, email };
+}
+
 export async function createEventAction(formData: FormData) {
   const session = await getSession();
   const userId = session?.data?.user?.id;
@@ -203,4 +216,66 @@ export async function deleteEventAction(eventId: string) {
   });
 
   redirect("/dashboard?deleted=1");
+}
+
+export async function addGuestAction(eventId: string, formData: FormData) {
+  const session = await getSession();
+  const userId = session?.data?.user?.id;
+
+  const owns = await prisma.event.findFirst({
+    where: {
+      id: eventId,
+      ownerUserId: userId,
+    },
+    select: { id: true },
+  });
+
+  if (!owns) {
+    throw new Error("Event not found");
+  }
+  const input = parseGuestInput(formData);
+  const emailNormalized = input.email.toLowerCase();
+  try {
+    await prisma.eventGuest.create({
+      data: {
+        eventId,
+        name: input.name,
+        email: input.email,
+        emailNormalized,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err; // or handle/display the error, but don't swallow it silently
+  }
+
+  revalidatePath(`/events/${eventId}`);
+  redirect(`/events/${eventId}`);
+}
+
+export async function removeGuestAction(eventId: string, guestId: string) {
+  const session = await getSession();
+  const userId = session?.data?.user?.id;
+
+  const guest = await prisma.event.findFirst({
+    where: {
+      id: guestId,
+      eventId: eventId,
+      event: {
+        ownerUserId: userId,
+      }
+    },
+    select: { id: true },
+  });
+
+  if (!guest) {
+    throw new Error("Event not found");
+  }
+
+  await prisma.eventGuest.delete({
+    where: { id: guestId },
+  });
+
+  revalidatePath(`/events/${eventId}`);
+  redirect(`/events/${eventId}`);
 }
