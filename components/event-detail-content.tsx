@@ -7,7 +7,11 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { createInviteLinkAction } from "@/lib/actions/events";
+import {
+  addGuestAction,
+  createInviteLinkAction,
+  removeGuestAction,
+} from "@/lib/actions/events";
 import {
   Table,
   TableBody,
@@ -17,6 +21,8 @@ import {
   TableRow,
 } from "./ui/table";
 import { DeleteEventButton } from "./delete-event-button";
+import { Input } from "./ui/input";
+import { Field, FieldLabel } from "./ui/field";
 
 export async function EventDetailsContent({
   userId,
@@ -56,6 +62,17 @@ export async function EventDetailsContent({
     notGoingCount: counts.notGoingCount,
   };
 
+  const guestsRows = await prisma.eventGuest.findMany({
+    where: { eventId },
+    orderBy: { createdAt: "asc" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      emailNormalized: true,
+    },
+  });
+
   const rsvpsRows = await prisma.eventRsvp.findMany({
     where: { eventId },
     orderBy: { respondedAt: "desc" },
@@ -65,6 +82,7 @@ export async function EventDetailsContent({
       email: true,
       status: true,
       respondedAt: true,
+      emailNormalized: true,
     },
   });
 
@@ -74,7 +92,22 @@ export async function EventDetailsContent({
     email: r.email,
     status: r.status,
     respondedAt: r.respondedAt ? r.respondedAt.toISOString() : null,
+    emailNormalized: r.emailNormalized,
   }));
+
+  const respondedEmails = new Set(rsvps.map((r) => r.emailNormalized));
+
+  const guests = guestsRows.map((g) => ({
+    id: g.id,
+    name: g.name,
+    email: g.email,
+    responded: respondedEmails.has(g.emailNormalized),
+  }));
+
+  const totalInvited = guests.length;
+  const totalResponded = guests.filter((g) => g.responded).length;
+  const responsePercentage =
+    totalInvited === 0 ? 0 : Math.round((totalResponded / totalInvited) * 100);
 
   const CreateInviteActionForEvent = createInviteLinkAction.bind(
     null,
@@ -103,13 +136,68 @@ export async function EventDetailsContent({
         <Button asChild variant="default" size="sm">
           <Link href={`/events/${event.id}/edit`}>Edit</Link>
         </Button>
-        <Button asChild variant="destructive" size="sm">
-          <DeleteEventButton eventId={event.id} />
-        </Button>
+        <DeleteEventButton eventId={event.id} />
         <Button asChild variant="outline">
           <Link href={"/dashboard"}>Back</Link>
         </Button>
       </div>
+      <Card>
+        <CardHeader>Responses</CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            {totalResponded} of {totalInvited} invited guests have responded (
+            {responsePercentage}%)
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>Guests List</CardHeader>
+        <CardContent className="space-y-4">
+          <form action={addGuestAction.bind(null, event.id)}>
+            <Field>
+              <FieldLabel htmlFor="Name">Name</FieldLabel>
+              <Input id="name" name="name" required placeholder="Your name" />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input id="email" name="email" />
+            </Field>
+            <Button type="submit">Add Guest</Button>
+          </form>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Responded</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {guests.map((guest) => (
+                <TableRow key={guest.id}>
+                  <TableCell>{guest.name}</TableCell>
+                  <TableCell>{guest.email}</TableCell>
+                  <TableCell>
+                    <Badge variant={guest.responded ? "secondary" : "outline"}>
+                      {guest.responded ? "Responded" : "Pending"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <form
+                      action={removeGuestAction.bind(null, event.id, guest.id)}
+                    >
+                      <Button type="submit" variant="destructive" size="sm">
+                        Delete
+                      </Button>
+                    </form>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
       <div className="flex flex-wrap gap-2 text-">
         <Badge>Going: {event.goingCount}</Badge>
         <Badge variant="secondary">Maybe: {event.maybeCount}</Badge>
@@ -159,7 +247,7 @@ export async function EventDetailsContent({
               </TableHeader>
               <TableBody>
                 {rsvps.map((rsvp) => (
-                  <TableRow>
+                  <TableRow key={rsvp.id}>
                     <TableCell>{rsvp.name}</TableCell>
                     <TableCell>{rsvp.email}</TableCell>
                     <TableCell>

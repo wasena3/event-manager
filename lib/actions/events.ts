@@ -257,7 +257,7 @@ export async function removeGuestAction(eventId: string, guestId: string) {
   const session = await getSession();
   const userId = session?.data?.user?.id;
 
-  const guest = await prisma.event.findFirst({
+  const guest = await prisma.eventGuest.findFirst({
     where: {
       id: guestId,
       eventId: eventId,
