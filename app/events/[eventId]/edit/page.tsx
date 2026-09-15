@@ -22,6 +22,7 @@ export default async function EditEventPage({
       description: true,
       location: true,
       eventDate: true,
+      rsvpDeadline: true
     },
   });
 
@@ -34,6 +35,7 @@ export default async function EditEventPage({
     description: eventEdit.description ?? "",
     location: eventEdit.location ?? "",
     eventDate: eventEdit.eventDate ? toLocalDateTimeInputValue(eventEdit.eventDate) : "",
+    rsvpDeadline: toLocalDateTimeInputValue(eventEdit.rsvpDeadline),
   };
   return (
     <>
