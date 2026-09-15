@@ -15,11 +15,19 @@ function parseEventInput(formData: FormData) {
   const location = String(formData.get("location") ?? "").trim();
   const eventDate = String(formData.get("eventDate") ?? "").trim();
 
+  const rsvpDeadline = String(formData.get("rsvpDeadline") ?? "").trim();
+  if (!rsvpDeadline) {
+    throw new Error("RSVP deadline is required");
+  }
+  if (isNaN(Date.parse(rsvpDeadline))) {
+    throw new Error("RSVP deadline must be a valid date");
+  }
   return {
     title,
     description: description.length ? description.slice(0, 300) : null,
     location: location.length ? location.slice(0, 300) : null,
     eventDate: eventDate.length ? eventDate : null,
+    rsvpDeadline: new Date(rsvpDeadline),
   };
 }
 
@@ -45,15 +53,15 @@ function parseRsvp(formData: FormData) {
 }
 
 function parseGuestInput(formData: FormData) {
-    const name = String(formData.get("name") ?? "").trim();
-    if (name.length < 3 || name.length > 120) {
-        throw new Error("Name must be between 3 and 120 characters");
-    }
-    const email = String(formData.get("email") ?? "").trim();
-    if (email.length < 3 || email.length > 320 || !email.includes("@")) {
-        throw new Error('Please enter a valid email');
-    }
-    return { name, email };
+  const name = String(formData.get("name") ?? "").trim();
+  if (name.length < 3 || name.length > 120) {
+    throw new Error("Name must be between 3 and 120 characters");
+  }
+  const email = String(formData.get("email") ?? "").trim();
+  if (email.length < 3 || email.length > 320 || !email.includes("@")) {
+    throw new Error("Please enter a valid email");
+  }
+  return { name, email };
 }
 
 export async function createEventAction(formData: FormData) {
@@ -263,7 +271,7 @@ export async function removeGuestAction(eventId: string, guestId: string) {
       eventId: eventId,
       event: {
         ownerUserId: userId,
-      }
+      },
     },
     select: { id: true },
   });
