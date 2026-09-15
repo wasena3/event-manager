@@ -78,6 +78,7 @@ export async function createEventAction(formData: FormData) {
         description: input.description,
         location: input.location,
         eventDate: input.eventDate ? new Date(input.eventDate) : null,
+        rsvpDeadline: input.rsvpDeadline
       },
     });
   } catch (err) {
@@ -194,6 +195,7 @@ export async function updateEventAction(eventId: string, formData: FormData) {
         description: input.description,
         location: input.location,
         eventDate: input.eventDate ? new Date(input.eventDate) : null,
+        rsvpDeadline: input.rsvpDeadline
       },
     });
   } catch (err) {
