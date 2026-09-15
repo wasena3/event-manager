@@ -21,6 +21,7 @@ type EventFormProps = {
     description: string;
     location: string;
     eventDate: string;
+    rsvpDeadline: string;
   };
 };
 
@@ -86,13 +87,22 @@ export function EventForm({
                   defaultValue={defaultValues?.eventDate}
                   placeholder="Select event date and time..."
                 />
-                <FieldDescription>
-                  Optional, you can leave this blank if you want to create a
-                  draft event.
-                </FieldDescription>
               </FieldSet>
             </FieldGroup>
-
+            <FieldSeparator />
+            <FieldGroup>
+              <FieldSet>
+                <Label htmlFor="rsvpDeadline">RSVP Deadline</Label>
+                <Input
+                  id="rsvpDeadline"
+                  name="rsvpDeadline"
+                  type="datetime-local"
+                  required
+                  defaultValue={defaultValues?.rsvpDeadline}
+                  placeholder="Select RSVP deadline..."
+                />
+              </FieldSet>
+            </FieldGroup>
             <div className="flex items-center justify-end gap-3">
               <Button type="submit">{submitLabel}</Button>
               <Button type="button" variant="outline" asChild>
