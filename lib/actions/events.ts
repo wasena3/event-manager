@@ -78,7 +78,7 @@ export async function createEventAction(formData: FormData) {
         description: input.description,
         location: input.location,
         eventDate: input.eventDate ? new Date(input.eventDate) : null,
-        rsvpDeadline: input.rsvpDeadline
+        rsvpDeadline: input.rsvpDeadline,
       },
     });
   } catch (err) {
@@ -131,6 +131,7 @@ export async function submitOrUpdateRsvpAction(
       event: {
         select: {
           id: true,
+          rsvpDeadline: true,
         },
       },
     },
@@ -138,6 +139,9 @@ export async function submitOrUpdateRsvpAction(
 
   if (!invite) {
     throw new Error("Invite link Invalid");
+  }
+  if (new Date() > invite.event.rsvpDeadline) {
+    throw new Error("RSVP deadline has passed. Responses are now closed.");
   }
 
   const eventId = invite.event.id;
@@ -195,7 +199,7 @@ export async function updateEventAction(eventId: string, formData: FormData) {
         description: input.description,
         location: input.location,
         eventDate: input.eventDate ? new Date(input.eventDate) : null,
-        rsvpDeadline: input.rsvpDeadline
+        rsvpDeadline: input.rsvpDeadline,
       },
     });
   } catch (err) {

@@ -23,6 +23,7 @@ export async function InviteRsvpContent({ token, submitted }: { token: string; s
           description: true,
           eventDate: true,
           location: true,
+          rsvpDeadline: true
         },
       },
     }
@@ -37,7 +38,9 @@ export async function InviteRsvpContent({ token, submitted }: { token: string; s
     description: e.description,
     location: e.location,
     eventDate: e.eventDate ? e.eventDate.toISOString() : null,
+    rsvpDeadline: e.rsvpDeadline ? e.rsvpDeadline.toISOString() : null,
   }
+  const isClosed = new Date() > row.event.rsvpDeadline;
 
   const submitRsvpForToken = submitOrUpdateRsvpAction.bind(null, token);
 
@@ -65,6 +68,11 @@ export async function InviteRsvpContent({ token, submitted }: { token: string; s
               Thanks for RSVPing!
             </p>
           ): null}
+          {isClosed ? (
+            <p className="mb-4 rounded border border-destructive/50 bg-destructive/15">
+              RSVP is closed for this event.
+            </p>
+          ): (
           <form action={submitRsvpForToken}>
             <Field>
               <FieldLabel htmlFor="Name">Name</FieldLabel>
@@ -91,6 +99,7 @@ export async function InviteRsvpContent({ token, submitted }: { token: string; s
             </Field>
             <Button type='submit'>Submit RSVP</Button>
           </form>
+          )}
         </CardContent>
       </Card>
     </div>
